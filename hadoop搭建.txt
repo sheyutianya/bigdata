@@ -1,0 +1,121 @@
+如何创建ubuntu新用户 hadoop
+sudo adduser hadoop
+
+2.安装ssh
+由于Hadoop用ssh通信，先安装ssh
+sudo apt-get install openssh-server  
+ssh安装完成以后，先启动服务：
+
+sudo /etc/init.d/ssh start   
+启动后，可以通过如下命令查看服务是否正确启动：
+
+ps -e | grep ssh  
+
+作为一个安全通信协议，使用时需要密码，因此我们要设置成免密码登录，生成私钥和公钥：
+
+ssh-keygen -t rsa -P ""  
+
+第一次操作时会提示输入密码，按Enter直接过，这时会在～/home/{username}/.ssh下生成两个文件：id_rsa和id_rsa.pub，前者为私钥，后者为公钥，现在我们将公钥追加到authorized_keys中（authorized_keys用于保存所有允许以当前用户身份登录到ssh客户端用户的公钥内容）：
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys  
+现在可以登入ssh确认以后登录时不用输入密码：
+~$ ssh localhost  
+
+3.设置静态ip地址
+ /etc/network/interfaces
+ 
+	iface eth0 inet static  # 把网卡设置成静态
+	address 192.168.26.XXX  # 自定义的ip  网段跟主机要一样，
+	gateway 192.168.26.2    # 网关需要在主机上查看，主机是win系统的，在控制台输入 ipconfig /all查看
+	netmask 255.255.255.0  #子网掩码
+	
+4.安装java
+使用ppa/源方式安装
+1.添加ppa
+
+sudo add-apt-repository ppa:webupd8team/java
+
+sudo apt-get update
+2.安装oracle-java-installer
+
+　jdk8
+
+sudo apt-get install oracle-java8-installer
+安装器会提示你同意 oracle 的服务条款,选择 ok
+
+然后选择yes 即可
+
+
+4.安装hadoop
+到官网下载hadoop源文件，这里选择hadoop
+解压并放到你希望的目录中。我是放到/usr/local/hadoop
+~$ sudo tar xzf hadoop-1.0.2.tar.gz  
+~$ sudo mv hadoop-1.0.2 /usr/local/hadoop  
+要确保所有的操作都是在用户hadoop下完成的：
+
+~$ sudo chown -R hadoop:hadoop /usr/local/hadoop 
+
+
+6.设定*-site.xml
+这里需要设定3个文件：core-site.xml,hdfs-site.xml,mapred-site.xml，都在/usr/local/hadoop/conf目录下
+core-site.xml:  Hadoop Core的配置项，例如HDFS和MapReduce常用的I/O设置等。
+hdfs-site.xml:  Hadoop 守护进程的配置项，包括namenode，辅助namenode和datanode等。
+mapred-site.xml： MapReduce 守护进程的配置项，包括jobtracker和tasktracker。    
+首先在hadoop目录下新建几个文件夹
+[html] view plain copy
+~/hadoop$ mkdir tmp  
+~/hadoop$ mkdir hdfs  
+~/hadoop$ mkdir hdfs/name  
+~/hadoop$ mkdir hdfs/data  
+
+
+接下来编辑那三个文件：
+core-site.xml:
+[html] view plain copy
+<configuration>  
+    <property>  
+        <name>fs.defaultFS</name>  
+        <value>hdfs://localhost:9000</value>  
+    </property>  
+    <property>  
+        <name>hadoop.tmp.dir</name>  
+        <value>/usr/local/hadoop/tmp</value>  
+    </property>  
+</configuration>  
+hdfs-site.xml:
+[html] view plain copy
+<configuration>  
+    <property>  
+        <name>dfs.replication</name>  
+        <value>1</value>  
+    </property>  
+    <property>  
+        <name>dfs.name.dir</name>  
+        <value>/usr/local/hadoop/hdfs/name</value>  
+    </property>  
+    <property>  
+        <name>dfs.data.dir</name>  
+        <value>/usr/local/hadoop/hdfs/data</value>  
+    </property>  
+</configuration>  
+mapred-site.xml
+  　　mv mapred-site.xml.template mapred-site.xml
+  　　vim mapred-site.xml
+　　　　<!-- 指定mr运行在yarn上 -->
+　　　　<property>
+　　　　　　 <name>mapreduce.framework.name</name>
+　　　　　　 <value>yarn</value>
+　　  </property>
+
+7.格式化HDFS
+通过以上步骤，我们已经设定好Hadoop单机测试到环境，接着就是启动Hadoop到相关服务，格式化namenode,secondarynamenode,tasktracker:
+[html] view plain copy
+~$ source /usr/local/hadoop/conf/hadoop-env.sh  
+~$ hadoop namenode -format  
+
+8.启动Hadoop
+接着执行start-all.sh来启动所有服务，包括namenode,datanode，start-all.sh脚本用来装载守护进程。
+
+
+
+
+
