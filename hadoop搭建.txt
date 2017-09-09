@@ -105,6 +105,17 @@ mapred-site.xml
 　　　　　　 <name>mapreduce.framework.name</name>
 　　　　　　 <value>yarn</value>
 　　  </property>
+yarn-site.xml
+<!-- 指定YARN的老大（ResourceManager）的地址 -->
+ 　　 　　<property>
+  　　　　　　<name>yarn.resourcemanager.hostname</name>
+  　　　　　　<value>itcast01</value>
+      　　 </property>
+  　　　　<!-- reducer获取数据的方式 -->
+      　　 <property>
+  　　　　　　<name>yarn.nodemanager.aux-services</name>
+  　　　　　　<value>mapreduce_shuffle</value>
+      　　 </property>
 
 7.格式化HDFS
 通过以上步骤，我们已经设定好Hadoop单机测试到环境，接着就是启动Hadoop到相关服务，格式化namenode,secondarynamenode,tasktracker:
