@@ -20,7 +20,7 @@ public class MyUserBasedRecommender {
         List<RecommendedItem> recommendations = null;  
         try {  
             //DataModel model = MyDataModel.myDataModel();//构造数据模型，Database-based  
-        	DataModel model = new FileDataModel(new File("/home/huhui/movie_preferences.txt"));//构造数据模型，File-based  
+        	DataModel model = new FileDataModel(new File("data/ratings.csv"));//构造数据模型，File-based  
             UserSimilarity similarity = new PearsonCorrelationSimilarity(model);//用PearsonCorrelation 算法计算用户相似度  
             UserNeighborhood neighborhood = new NearestNUserNeighborhood(3, similarity, model);//计算用户的“邻居”，这里将与该用户最近距离为 3 的用户设置为该用户的“邻居”。  
             Recommender recommender = new CachingRecommender(new GenericUserBasedRecommender(model, neighborhood, similarity));//构造推荐引擎，采用 CachingRecommender 为 RecommendationItem 进行缓存  
@@ -34,6 +34,17 @@ public class MyUserBasedRecommender {
   
   
     public static void main(String args[]) throws Exception {  
+    	
+    	File ss = new File("res/ratings.csv");
+    	
+    	System.out.println(ss.getPath());
+    	
     	System.out.println( "Hello World!" );
+    	
+    	System.out.println(Class.class.getClass().getResource("/").getPath());
+    	
+    	MyUserBasedRecommender temp = new MyUserBasedRecommender();
+    	List<RecommendedItem> templist = temp.userBasedRecommender(1, 2);  	
+    	System.out.println(templist.size());
     }  
 }  
