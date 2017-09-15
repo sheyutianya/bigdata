@@ -1,0 +1,5 @@
+1.≈‰÷√flume-env.sh 
+  …Ë÷√JAVA_HOME
+2.±‡–¥flume agent
+3.∆Ù∂Øflume
+∆Ù∂Øflume: flume-ng agent --conf ./conf/ --conf-file ./conf/test2.conf --name agent -Dflume.root.logger=INFO,console
